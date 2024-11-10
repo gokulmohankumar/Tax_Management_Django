@@ -1,0 +1,14 @@
+<!-- admin_edit_user.html -->
+{% extends 'admin/admin_base.html' %}
+
+{% block content %}
+<h1>Edit User: {{ user.username }}</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Changes</button>
+</form>
+
+<a href="{% url 'manage_users' %}">Back to Manage Users</a>
+{% endblock %}

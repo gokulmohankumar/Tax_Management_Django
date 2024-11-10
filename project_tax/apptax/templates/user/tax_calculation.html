@@ -1,0 +1,200 @@
+{% extends "user/tax_calculation_base.html" %}
+
+{% block calculation_content %}
+<style>
+    .tax-calculation-container {
+        display: grid;
+        grid-template-rows: auto auto;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    /* Card Container */
+    .tax-summary-container {
+        display: flex;
+        gap: 20px;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    /* Individual Cards */
+    .tax-summary-card {
+        flex: 1;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    /* Old Regime Styling */
+    .old-regime {
+        background-color: #FFEBEE;
+        border: 1px solid #C62828;
+    }
+
+    /* New Regime Styling */
+    .new-regime {
+        background-color: #E3F2FD;
+        border: 1px solid #1976D2;
+    }
+
+    /* Title Style */
+    .tax-summary-card h3 {
+        margin: 0;
+        color: #333;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    /* Paragraph Text Styling */
+    .tax-summary-card p {
+        margin: 10px 0;
+        font-size: 1.125rem;
+        font-weight: 500;
+        color: #444;
+        text-align: left;
+    }
+
+    /* Value Styling for Aligned Decimal Points */
+    .tax-summary-card .value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #000;
+        text-align: right;
+    }
+
+    /* Tax Chart Container */
+    .tax-chart-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    /* Button Styling */
+    .buttonCa {
+        padding: 8px 12px;
+        text-decoration: none;
+        background-color: rgb(243, 150, 0);
+        color: white;
+        border-radius: 10px;
+        margin-left: 650px;
+        font-size: 1rem;
+    }.buttonRa {
+        padding: 8px 12px;
+        text-decoration: none;
+        background-color: rgb(243, 150, 0);
+        color: white;
+        border-radius: 10px;
+        border: none;
+        position: relative;
+        bottom: 30px;
+        font-size: 1rem;
+    }
+
+    /* Button Hover Effect */
+    .buttonCa:hover {
+        background-color: #F57C00;
+    }
+</style>
+
+<a class="buttonCa" href="{% url 'basic_details' % }">Calculate Again</a>
+
+<!-- Form to request the report -->
+<form method="post" action="">
+    {% csrf_token %}
+    <button type="submit" class="buttonRa">Request Tax Report</button>
+</form>
+
+<div class="tax-calculation-container">
+
+    <!-- Summary Section -->
+    <div class="tax-summary-container">
+        <!-- Old Regime Card -->
+        <div class="tax-summary-card old-regime">
+            <h3>Old Tax Regime</h3>
+            <p><strong>Total Deductions:</strong></p>
+            <p class="value">₹{{ total_deductions_old_regime|floatformat:2 }}</p>
+            <p><strong>Taxable Income:</strong></p>
+            <p class="value">₹{{ taxable_income_old_regime|floatformat:2 }}</p>
+            <p><strong>Tax:</strong></p>
+            <p class="value">₹{{ tax_old_regime|floatformat:2 }}</p>
+        </div>
+
+        <!-- New Regime Card -->
+        <div class="tax-summary-card new-regime">
+            <h3>New Tax Regime</h3>
+            <p><strong>Total Deductions:</strong></p>
+            <p class="value">₹{{ total_deductions_new_regime|floatformat:2 }}</p>
+            <p><strong>Taxable Income:</strong></p>
+            <p class="value">₹{{ taxable_income_new_regime|floatformat:2 }}</p>
+            <p><strong>Tax:</strong></p>
+            <p class="value">₹{{ tax_new_regime|floatformat:2 }}</p>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="tax-chart-container">
+        <h3>Tax Comparison</h3>
+        <canvas id="taxComparisonChart" width="400" height="150"></canvas>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('taxComparisonChart').getContext('2d');
+    const taxComparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Old Regime', 'New Regime'],
+            datasets: [
+                {
+                    label: 'Total Deductions',
+                    data: [{{ total_deductions_old_regime|floatformat:2 }}, {{ total_deductions_new_regime|floatformat:2 }}],
+                    backgroundColor: '#EF9A9A',
+                    borderColor: '#C62828',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Taxable Income',
+                    data: [{{ taxable_income_old_regime|floatformat:2 }}, {{ taxable_income_new_regime|floatformat:2 }}],
+                    backgroundColor: '#90CAF9',
+                    borderColor: '#1E88E5',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Tax',
+                    data: [{{ tax_old_regime|floatformat:2 }}, {{ tax_new_regime|floatformat:2 }}],
+                    backgroundColor: '#FFCC80',
+                    borderColor: '#FB8C00',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return '₹' + tooltipItem.raw.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

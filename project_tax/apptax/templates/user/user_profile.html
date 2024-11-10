@@ -1,0 +1,295 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block title %}User Profile - Tax Management System{% endblock %}
+
+{% block content %}
+<style>
+  /* Profile Page-Specific Styles */
+  .profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    font-family: Arial, sans-serif;
+  }
+
+  .profile-form {
+    background-color: white;
+    padding: 30px;
+    max-width: 700px;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-form img.logo {
+    width: 70px;
+    margin-bottom: 20px;
+    margin-left: 180px;
+  }
+
+  .profile-form h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333333;
+    text-align: center;
+  }
+
+  .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    flex: 0 0 120px; /* Adjusted for better spacing */
+    font-size: 14px;
+    color: #555555;
+    text-align: left;
+  }
+
+  .input-container {
+    position: relative;
+    flex-grow: 1;
+  }
+
+  .input-container input,textarea
+   {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 1px solid #b0b0b0;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333333;
+    background-color: #ffffff;
+  }
+
+  .input-container textarea {
+    resize: vertical; /* Allow vertical resizing */
+  }
+
+  .input-container input:focus,textarea:focus {
+    border-color: #ffc916;
+    outline: none;
+    box-shadow: 0 0 5px rgba(247, 108, 108, 0.3);
+  }
+
+  .input-container .icon {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    color: #777777;
+  }
+
+  .cta-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ffac11;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .cta-button:hover {
+    background-color: #fcc600;
+  }
+
+  .errors {
+    color: #ff0000;
+    font-size: 12px;
+    margin-top: -8px;
+    margin-bottom: 8px;
+  }
+
+  .profile-image-container {
+    text-align: center;
+    margin-bottom: 15px;
+    position: relative; /* Position relative for the edit icon */
+  }
+
+  .profile-image-container img {
+    max-width: 150px;
+    border-radius: 75px; /* Circular image */
+  }
+
+  .edit-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: #ffac11;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .edit-icon:hover {
+    background-color: #fcc600;
+  }
+  .alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+.errors{
+  color:#ff0000;
+  list-style-type: none;
+  position: relative;
+  left: 150px;
+}
+</style>
+
+<div class="profile-container">
+  <div class="profile-form">
+    {% if messages %}
+    <div class="alert alert-success mt-3">
+      {% for message in messages %}
+        <p>{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+    
+    <h2>Update Profile</h2>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="profile-image-container">
+        {% if user.profile_image %}
+          <img id="profileImage" src="{{ user.profile_image.url }}" alt="Profile Image">
+        {% else %}
+          <img id="profileImage" src="{% static 'images/no_profile.png' %}" alt="Default Profile Image">
+        {% endif %}
+        <input type="file" name="profile_image" accept="image/*" style="display: none;" id="fileInput" onchange="previewImage(event)">
+        <button type="button" class="edit-icon" onclick="document.getElementById('fileInput').click();">
+          <i class="fa fa-edit"></i>
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label for="first_name">First Name</label>
+        <div class="input-container">
+          <i class="fa fa-user icon"></i>
+          <input type="text" name="first_name" id="first_name" value="{{ user.first_name|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.first_name.errors }}</span>
+      <div class="form-group">
+        <label for="last_name">Last Name</label>
+        <div class="input-container">
+          <i class="fa fa-user icon"></i>
+          <input type="text" name="last_name" id="last_name" value="{{ user.last_name|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.last_name.errors }}</span>
+      <div class="form-group">
+        <label for="date_of_birth">Date of Birth</label>
+        <div class="input-container">
+          <i class="fa fa-calendar icon"></i>
+          <input type="date" name="date_of_birth" id="date_of_birth" value="{{ user.date_of_birth|date:'Y-m-d'|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.date_of_birth.errors }}</span>
+      <div class="form-group">
+        <label for="pan_number">PAN Number</label>
+        <div class="input-container">
+            <i class="fa fa-id-card icon"></i>
+            <input type="text" name="pan_number" id="pan_number" value="{{ user.pan_number|default:'' }}">
+        </div>
+    </div>
+    <span class="errors">{{ form.pan_number.errors }}</span>
+      <div class="form-group">
+        <label for="phone_number">Phone Number</label>
+        <div class="input-container">
+          <i class="fa fa-phone icon"></i>
+          <input type="tel" name="phone_number" id="phone_number" value="{{ user.phone_number|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.phone_number.errors }}</span>
+      <div class="form-group">
+        <label for="address">Address</label>
+        <div class="input-container">
+          <i class="fa fa-home icon"></i>
+          <textarea name="address" id="address" rows="3">{{ user.address|default:'' }}</textarea>
+        </div>
+      </div>
+      <span class="errors">{{ form.address.errors }}</span>
+      <div class="form-group">
+        <label for="city">City</label>
+        <div class="input-container">
+          <i class="fa fa-city icon"></i>
+          <input type="text" name="city" id="city" value="{{ user.city|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.city.errors }}</span>
+      <div class="form-group">
+        <label for="state">State</label>
+        <div class="input-container">
+          <i class="fa fa-map-marker icon"></i>
+          <input type="text" name="state" id="state" value="{{ user.state|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.state.errors }}</span>
+      <div class="form-group">
+        <label for="postal_code">Postal Code</label>
+        <div class="input-container">
+          <i class="fa fa-envelope icon"></i>
+          <input type="text" name="postal_code" id="postal_code" value="{{ user.postal_code|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.postal_code.errors }}</span>
+
+      <div class="form-group">
+        <label for="occupation">Occupation</label>
+        <div class="input-container">
+          <i class="fa fa-briefcase icon"></i>
+          <input type="text" name="occupation" id="occupation" value="{{ user.occupation|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.occupation.errors }}</span>
+      <div class="form-group">
+        <label for="annual_income">Annual Income</label>
+        <div class="input-container">
+          <i class="fa fa-money icon"></i>
+          <input type="number" name="annual_income" id="annual_income" value="{{ user.annual_income|default:'' }}">
+        </div>
+      </div>
+      <span class="errors">{{ form.annual_income.errors }}</span>
+      <button type="submit" class="cta-button">Update Profile</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function previewImage(event) {
+    const profileImage = document.getElementById('profileImage');
+    const file = event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        profileImage.src = e.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
+  }
+</script>
+
+{% endblock %}
+ 

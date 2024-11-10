@@ -1,0 +1,102 @@
+{% extends "user/tax_calculation_base.html" %}
+
+{% block calculation_content %}
+<style>
+    .instruction {
+        margin-bottom: 20px; /* Space between instruction and form */
+        color: #555; /* Slightly lighter text for instruction */
+    }
+
+    form {
+        background-color: #ffffff; /* White background for the form */
+        border: 1px solid #ccc; /* Light gray border */
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        display: flex; /* Use flexbox for alignment */
+        flex-wrap: wrap; /* Allow items to wrap */
+    }
+
+    .form-group {
+        display: flex; /* Use flexbox for alignment */
+        flex-direction: column; /* Stack label and input vertically */
+        flex: 1 1 45%; /* Allow each group to take up 45% of the row, adjust as necessary */
+        margin: 10px; /* Space between form groups */
+    }
+
+    .form-group label {
+        margin-bottom: 5px; /* Space between label and input */
+    }
+
+    .form-group input[type="text"], 
+    .form-group input[type="number"], 
+    .form-group input[type="email"] {
+        padding: 10px;
+        border: 1px solid #ccc; /* Light gray border */
+        border-radius: 5px;
+        box-sizing: border-box; /* Ensures padding is included in width */
+    }
+
+    .submit-container {
+        display: flex; /* Use flexbox for button alignment */
+        justify-content: flex-end; /* Align button to the right */
+        margin-top: 20px; /* Space above button */
+        width: 100%; /* Ensure it takes full width */
+    }
+    .previous-link
+    {
+        background-color: #e1a749; /* Orange background for button */
+        color: white; /* White text */
+        padding: 8px 15px; /* Padding for the button */
+        border: none;
+        border-radius: 5px;
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        position: relative;
+        right: 80%;
+        text-decoration: none;
+    }
+    form button {
+        background-color: #f39c12; /* Orange background for button */
+        color: white; /* White text */
+        padding: 8px 15px; /* Padding for the button */
+        border: none;
+        border-radius: 5px;
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px;
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    form button:hover {
+        background-color: #e67e22; /* Darker orange on hover */
+    }
+
+    .errors {
+        color: #ff0000; /* Red for error messages */
+        font-size: 12px;
+        margin-top: -8px;
+        margin-bottom: 8px;
+    }
+</style>
+
+<h2>Income Details</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    
+    {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            <span class="errors">{{ field.errors }}</span>
+        </div>
+    {% endfor %}
+
+    <div class="submit-container">
+        <a class="previous-link" href="{% url 'basic_details' %}">Previous</a>
+
+        <button type="submit">Next</button>
+    </div>
+</form>
+{% endblock %}

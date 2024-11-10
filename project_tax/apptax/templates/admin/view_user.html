@@ -1,0 +1,68 @@
+<!-- admin_view_user.html -->
+{% extends 'admin/admin_base.html' %}
+
+{% block content %}
+<h1>View User: {{ user.username }}</h1>
+
+<table>
+    <tr>
+        <th>First Name</th>
+        <td>{{ user.first_name }}</td>
+    </tr>
+    <tr>
+        <th>Last Name</th>
+        <td>{{ user.last_name }}</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>{{ user.email }}</td>
+    </tr>
+    <tr>
+        <th>Date of Birth</th>
+        <td>{{ user.date_of_birth }}</td>
+    </tr>
+    <tr>
+        <th>Phone Number</th>
+        <td>{{ user.phone_number }}</td>
+    </tr>
+    <tr>
+        <th>PAN Number</th>
+        <td>{{ user.pan_number }}</td>
+    </tr>
+    <tr>
+        <th>Address</th>
+        <td>{{ user.address }}</td>
+    </tr>
+    <tr>
+        <th>City</th>
+        <td>{{ user.city }}</td>
+    </tr>
+    <tr>
+        <th>State</th>
+        <td>{{ user.state }}</td>
+    </tr>
+    <tr>
+        <th>Postal Code</th>
+        <td>{{ user.postal_code }}</td>
+    </tr>
+    <tr>
+        <th>Occupation</th>
+        <td>{{ user.occupation }}</td>
+    </tr>
+    <tr>
+        <th>Annual Income</th>
+        <td>{{ user.annual_income }}</td>
+    </tr>
+    <tr>
+        <th>Taxpayer Status</th>
+        <td>{{ user.taxpayer_status }}</td>
+    </tr>
+    <tr>
+        <th>Profile Image</th>
+        <td><img src="{{ user.profile_image.url }}" alt="Profile Image" width="100" height="100"></td>
+    </tr>
+</table>
+
+<a href="{% url 'manage_users' %}">Back to Manage Users</a>
+
+{% endblock %}

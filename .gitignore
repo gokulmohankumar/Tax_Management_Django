@@ -1,0 +1,26 @@
+# Ignore virtual environment folder
+env/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore IDE and editor settings
+.vscode/
+.idea/
+
+# Ignore compiled files
+*.pyc
+*.pyo
+
+# Ignore Django migration files (if you're using Django)
+*/migrations/*.py
+*/migrations/*.pyc
+
+# Ignore log files and temporary files
+*.log
+*.tmp
+
+# Ignore Mac and Linux system files
+.DS_Store
+.vscode/

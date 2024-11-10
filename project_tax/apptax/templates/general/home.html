@@ -1,0 +1,303 @@
+{% extends 'general/base.html' %} {% load static %} {% block title %}Home - Tax
+Management System{% endblock %} {% block content %}
+<style>
+  /* Global Styles */
+  body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    position: relative;
+    width: 100%;
+    height: 40vh;
+    overflow: hidden;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(70%);
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #ffffff;
+    padding: 20px; /* Adds padding around the text */
+    background-color: rgba(
+      0,
+      0,
+      0,
+      0.5
+    ); /* Semi-transparent black background */
+    border-radius: 8px; /* Rounded corners */
+  }
+
+  .hero-overlay h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Adds a shadow effect to the text */
+  }
+  .hero-overlay p {
+    font-size: 1.2em;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  .cta-button {
+    padding: 12px 25px;
+    background-color: #f8c407;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    position: relative;
+    top: 50px;
+  }
+
+  .cta-button:hover {
+    background-color: #ae8902;
+  }
+
+  /* Section Links */
+  .section-links {
+    display: flex;
+    justify-content: center;
+    padding: 15px 0;
+    background-color: #f0f0f0;
+    list-style-type: none;
+    margin: 0;
+  }
+
+  .section-links li {
+    margin: 0 20px;
+  }
+
+  .section-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+  }
+
+  /* Features Section */
+  .features-section {
+    padding: 50px 20px;
+    background-color: #ffffff;
+    text-align: center;
+  }
+
+  .features-section h2 {
+    font-size: 2em;
+    margin-bottom: 30px;
+    color: #444;
+  }
+
+  .features-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: auto;
+  }
+
+  .feature-card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+  }
+
+  .feature-icon {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+
+  .feature-card h3 {
+    color: #f8c407;
+    margin-bottom: 10px;
+  }
+
+  /* Testimonials Section */
+  .testimonials-section {
+    padding: 50px 20px;
+    background-color: #f7f7f7;
+    text-align: center;
+  }
+
+  .testimonials-section h2 {
+    font-size: 2em;
+    color: #444;
+    margin-bottom: 20px;
+  }
+
+  .testimonial {
+    max-width: 600px;
+    margin: 20px auto;
+    font-style: italic;
+    color: #555555;
+  }
+
+  /* FAQ Section */
+  .faq-section {
+    padding: 50px 20px;
+    background-color: #ffffff;
+  }
+
+  .faq-section h2 {
+    font-size: 2em;
+    color: #444;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .faq-item {
+    max-width: 800px;
+    margin: 20px auto;
+  }
+
+  /* Contact Section */
+  .contact-info-section {
+    padding: 50px 20px;
+    background-color: #f0f0f0;
+    text-align: center;
+  }
+
+  .contact-info-section h2 {
+    font-size: 2em;
+    color: #444;
+    margin-bottom: 20px;
+  }
+</style>
+
+<div class="hero-section">
+  <img
+    src="{% static 'images/homebg.jpeg' %}"
+    alt="Hero Image"
+    class="hero-image"
+  />
+  <div class="hero-overlay">
+    <h1 class="glow">Welcome to Smart-Tax</h1>
+    <p>Your all-in-one solution for effortless and efficient tax management.</p>
+    <a href="{% url 'register' %}" class="cta-button">Get Started</a>
+  </div>
+</div>
+
+<ul class="section-links">
+  <li><a href="#features">Features</a></li>
+  <li><a href="#testimonials">Testimonials</a></li>
+  <li><a href="#faq">FAQ</a></li>
+  <li><a href="#contact">Contact</a></li>
+</ul>
+
+<section id="features" class="features-section">
+  <h2>What We Offer</h2>
+  <div class="features-row">
+    <div class="feature-card">
+      <img
+        src="{% static 'images/calculation.jpg' %}"
+        alt="Tax Calculations"
+        class="feature-icon"
+      />
+      <h3>Advanced Tax Calculations</h3>
+      <p>
+        Accurate, real-time calculations that adapt to your financial data,
+        ensuring compliance and potential savings.
+      </p>
+    </div>
+    <div class="feature-card">
+      <img
+        src="{% static 'images/service.jpg' %}"
+        alt="User-Friendly Interface"
+        class="feature-icon"
+      />
+      <h3>User-Friendly Dashboard</h3>
+      <p>
+        Navigate your tax records, filings, and more with ease using our
+        intuitive, well-organized interface.
+      </p>
+    </div>
+    <div class="feature-card">
+      <img
+        src="{% static 'images/docs.jpg' %}"
+        alt="Document Management"
+        class="feature-icon"
+      />
+      <h3>Secure Document Storage</h3>
+      <p>
+        Upload and store tax-related documents securely, accessible whenever and
+        wherever you need them.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="testimonials" class="testimonials-section">
+  <h2>What Our Users Say</h2>
+  <div class="testimonial">
+    <p>
+      “Smart-Tax made my tax filing process seamless. Highly recommended for
+      anyone looking for efficiency and accuracy!” — User A
+    </p>
+  </div>
+  <div class="testimonial">
+    <p>
+      “An invaluable tool that provides clarity and control over my tax
+      management. I couldn't be happier.” — User B
+    </p>
+  </div>
+  <div class="testimonial">
+    <p>
+      “Simple yet effective. The secure document storage feature alone has been
+      a lifesaver!” — User C
+    </p>
+  </div>
+</section>
+
+<section id="faq" class="faq-section">
+  <h2>Frequently Asked Questions</h2>
+  <div class="faq-item">
+    <h3>How do I register?</h3>
+    <p>
+      Click on 'Register Now' and fill in your details to set up an account.
+      It’s quick and easy to get started!
+    </p>
+  </div>
+  <div class="faq-item">
+    <h3>Is my information secure?</h3>
+    <p>
+      Yes, we employ top-tier security measures to protect all personal and tax
+      data stored on our platform.
+    </p>
+  </div>
+  <div class="faq-item">
+    <h3>Can I access my data anytime?</h3>
+    <p>
+      Absolutely! Your data is securely stored and accessible to you anytime,
+      anywhere.
+    </p>
+  </div>
+</section>
+
+<section id="contact" class="contact-info-section">
+  <h2>Contact Us</h2>
+  <p>
+    If you have any questions or need assistance, don’t hesitate to reach out:
+  </p>
+  <p>Email: smarttaxsystems@gmail.com</p>
+  <p>Phone: +91 99443 89099</p>
+</section>
+{% endblock %}

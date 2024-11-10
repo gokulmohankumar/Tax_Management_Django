@@ -1,0 +1,23 @@
+<!-- upload_pancard.html -->
+{% extends 'general/base.html' %}
+{% load static %}
+{% block title %}Upload PAN Card{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Upload Your PAN Card</h2>
+
+    {% if messages %}
+      <div class="alert alert-success">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+
+</div>
+{% endblock %}

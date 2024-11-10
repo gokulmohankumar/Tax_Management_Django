@@ -1,0 +1,245 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <style>
+      /* Reset styles for all elements */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Body styles */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4; /* Light background color */
+        overflow-x: hidden; /* Prevent horizontal scroll */
+      }
+
+      /* Sidebar styles */
+      .sidebar {
+        width: 300px;
+        background: rgba(0, 0, 0, 0.8); /* Dark sidebar color */
+        position: fixed; /* Fixed position for sidebar */
+        height: 100%; /* Full height */
+        padding: 20px;
+        color: white;
+        transition: width 0.3s; /* Smooth transition */
+      }
+
+      /* Collapsed sidebar styles */
+      .sidebar.collapsed {
+        width: 60px; /* Width when collapsed */
+      }
+
+      .title {
+        display: flex;
+        align-items: center; /* Center vertically */
+        margin-bottom: 20px; /* Space below title */
+      }
+
+      .title span {
+        font-size: larger;
+        margin-left: 10px;
+        transition: opacity 0.3s; /* Smooth transition for visibility */
+      }
+
+      .sidebar img.logo {
+        max-height: 20px; /* Small logo size */
+        border-radius: 10px;
+        margin-left: -3px;
+      }
+
+      .sidebar img.profile {
+        width: 120px; /* Profile image size */
+        height: auto;
+        border-radius: 50%;
+        margin-top: 10px; /* Circle profile image */
+        margin-bottom: 20px; /* Space below profile image */
+        margin-left: 60px;
+        transition: opacity 0.3s; /* Smooth transition for visibility */
+      }
+
+      .username {
+        align-self: center;
+        color: #ffffff;
+        transition: opacity 0.3s; /* Smooth transition for visibility */
+        margin-left: 45px;
+      }
+      .email {
+        color: #f39c12;
+        transition: opacity 0.3s;
+        background-color: #f4f4f4; /* Smooth transition for visibility */
+        padding: 1px;
+        border-radius:10px;
+        margin-top: 10px;
+      }
+
+      .sidebar ul {
+        list-style-type: none; /* Remove bullets */
+        padding: 0;
+      }
+
+      .sidebar ul li {
+        margin: 20px 0; /* Spacing between items */
+        display: flex; /* Use flexbox for alignment */
+        align-items: center; /* Center items vertically */
+        height: 40px; /* Fixed height for each list item */
+      }
+
+      .sidebar ul li a {
+        color: white; /* Link color */
+        text-decoration: none; /* Remove underline */
+        font-size: 16px;
+        transition: color 0.3s; /* Smooth transition for hover */
+        flex-grow: 1; /* Allow link to take remaining space */
+      }
+
+      .sidebar ul li a:hover {
+        color: #f39c12; /* Highlight color on hover */
+      }
+
+      /* Active link styles */
+      .sidebar ul li.active a {
+        color: #f39c12; /* Color for the active link */
+      }
+
+      /* Content styles */
+      .content {
+        margin-left: 300px; /* Space for sidebar */
+        padding: 20px;
+        transition: margin-left 0.3s; /* Smooth transition */
+      }
+
+      /* Collapsed content styles */
+      .content.collapsed {
+        margin-left: 60px; /* Adjust content margin when sidebar is collapsed */
+      }
+
+      /* Button styles */
+      .toggle-btn {
+        z-index: 2;
+        position: absolute;
+        top: 55px;
+        left: 15px;
+        background-color: #f39c12; /* Button color */
+        border: none;
+        color: white;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        position: fixed;
+      }
+
+      .toggle-btn:hover {
+        background-color: #e67e22; /* Darker shade on hover */
+      }
+
+      /* Icon styles */
+      .icon {
+        width: 24px; /* Icon size */
+        height: 24px;
+        margin-right: 10px; /* Space between icon and text */
+        display: inline-block;
+      }
+
+      /* Sidebar icon text */
+      .sidebar.collapsed .icon-text {
+        display: none; /* Hide text when collapsed */
+      }
+
+      /* Hide elements when collapsed */
+      .sidebar.collapsed .profile,
+      .sidebar.collapsed .username,
+      .sidebar.collapsed .email,
+      .sidebar.collapsed .title span {
+        opacity: 0; /* Hide elements but maintain their space */
+        height: 0; /* Avoid extra height */
+        overflow: hidden; /* Prevent overflow */
+      }
+    </style>
+</head>
+<body>
+    <button class="toggle-btn" id="toggleSidebar">☰</button> <!-- Toggle Button -->
+
+    <div class="sidebar" id="sidebar">
+        <div class="title">
+            <img src="{% static 'images/smartax_logo1.jpg' %}" alt="Logo" class="logo" />
+            <span class="sidebar-title">Smart Tax</span> <!-- Span for title -->
+        </div>
+        
+        {% if user.profile_image %}
+            <img src="{{ user.profile_image.url }}" alt="Profile Image" class="profile" />
+        {% else %}
+            <img src="{% static 'images/admin_noprofile.png' %}" alt="Default Profile Image" class="profile" />
+        {% endif %}
+        <span class="username">{{ user.first_name }} {{ user.last_name }}</span> <!-- Username -->
+        <span class="email">{{ user.email }} </span>
+        <ul>
+            <li class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <a href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-tachometer-alt icon"></i> 
+                    <span class="icon-text">Dashboard</span>
+                </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}">
+              <a href="{% url 'manage_users' %}">
+                  <i class="fas fa-users icon"></i>
+                  <span class="icon-text">Manage Users</span>
+              </a>
+          </li>
+          <li class="{% if request.resolver_match.url_name == 'admin_manage_documents' %}active{% endif %}">
+            <a href="{% url 'manage_documents' %}">
+                <i class="fas fa-file-alt icon"></i>
+                <span class="icon-text">Manage Documents</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'manage_feedbacks' %}active{% endif %}">
+          <a href="{% url 'manage_feedbacks' %}">
+              <i class="fas fa-comments icon"></i>
+              <span class="icon-text">Manage Feedbacks</span>
+          </a>
+       </li>
+       <li class="{% if request.resolver_match.url_name == 'tax_calculations' %}active{% endif %}">
+        <a href="{% url 'tax_calculations' %}">
+            <i class="fas fa-calculator icon"></i>
+            <span class="icon-text">Tax Calculations</span>
+        </a>
+       </li>
+            <li>
+              <a href="{% url 'logout' %}" onclick="return confirmLogout();">
+                  <i class="fas fa-sign-out-alt icon"></i>
+                  <span class="icon-text">Log Out</span>
+              </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content" id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script>
+      document.getElementById('toggleSidebar').onclick = function() {
+        var sidebar = document.getElementById('sidebar');
+        var content = document.getElementById('content');
+        sidebar.classList.toggle('collapsed');
+        content.classList.toggle('collapsed');
+      }
+      function confirmLogout() {
+        return confirm("Are you sure you want to log out?");
+    }
+    </script>
+</body>
+</html>

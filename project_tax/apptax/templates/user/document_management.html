@@ -1,0 +1,232 @@
+{% extends "user/user_base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .container {
+        padding: 10px 20px;
+        background-color: #f9f9f9;
+    }
+
+    .header {
+    display: flex;
+    align-items: center; /* Center vertically */
+    margin-bottom: 40px; /* Space below header */
+}
+
+    .header-content {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start; /* Align items at the top */
+        width: 100%; /* Full width */
+    }
+
+    .docimage {
+        width: 150px; /* Adjust size as needed */
+        height: auto; /* Maintain aspect ratio */
+        margin-right: 20px; /* Space between image and notes */
+    }
+
+    .notes {
+        flex-grow: 1; /* Allow notes section to take remaining space */
+        background:rgb(71, 70, 70);
+        padding: 10px;
+    }
+    .notes ul {
+        list-style:none;
+        padding-left: 20px; /* Space for bullets */
+        list-style-type: style type;
+    }
+
+    .notes li {
+        font-size: 16px; /* Font size for points */
+        color: #ffffff; /* Color for points */
+        margin-bottom: 10px;
+    }
+
+    .header h2 {
+        font-size: 32px;
+        color: #f6b709;
+        margin-bottom: 10px;
+    }
+
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px; /* Space between cards */
+        justify-content: center;
+    }
+
+    .card {
+        background-color: #fff;
+        padding: 20px;
+        padding-bottom: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+        max-width: 350px;
+        width: 100%;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s; /* Transition for hover effects */
+
+    }
+
+    .card:hover {
+        transform: translateY(-5px); /* Lift effect on hover */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+    }
+
+    .card img {
+        width: 230px; /* Fixed size for icons */
+        height: 130px;
+        object-fit: cover;
+        border-radius: 10%; /* Circular image */
+        margin-bottom: 15px;
+    }
+
+    .card-title {
+        font-size: 24px; /* Increase card title size */
+        color: #ffac11; /* Color for titles */
+    }
+
+    .card-text {
+        font-size: 16px; /* Regular text size for descriptions */
+        color: #555; /* Dark grey color for text */
+    }
+
+    .verification-status {
+        background-color: #28a745; /* Green background for verified */
+        color: #fff; /* White text */
+        padding: 5px 10px; /* Padding around text */
+        border-radius: 5px; /* Rounded corners */
+        font-size: 0.8rem; /* Smaller text */
+        position: relative;
+        top: -10px; /* Position it slightly up */
+        right: -10px; /* Position it slightly to the right */
+    }
+
+    .btn {
+        background-color: #efb242; /* Primary button color */
+        color: #fff; /* White text for buttons */
+        border: none; /* Remove border */
+        border-radius: 5px; /* Rounded button corners */
+        padding: 5px; /* Padding for buttons */
+        transition: background-color 0.3s; /* Smooth transition for button color */
+        position: relative;
+        top:15px;
+    }
+    a{
+        color: #fff; 
+        text-decoration: none;
+    }
+    .btn:hover {
+        background-color: #e68e09; /* Darker blue on hover */
+    }
+    .docimage
+    {
+        width: 300px;
+        height: 200px;
+    }
+    .alert
+    {
+        color:forestgreen;
+        font-size: larger;
+        background: #ceb2b2;
+        margin: 10px;
+    }
+</style>
+
+<div class="container mt-5">
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    <div class="header">
+        <div class="header-content">
+            <div class="notes">
+
+                <h2>Document Management</h2>
+                <ul>
+                    <li>Ensure all documents are in clear, readable format.</li>
+                    <li>Upload documents in accepted file formats (PDF, JPG, etc.).</li>
+                    <li>Keep track of uploaded documents for easier management.</li>
+                    <li>You will receive notifications once your documents are verified.</li>
+                    <li>Contact support for any issues during the upload process.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- PAN Card -->
+        <div class="card">
+            <div class="verification-status {% if doc_status.PAN %}bg-success{% else %}bg-danger{% endif %}">
+                {% if doc_status.PAN %}Verified{% else %}Not Verified{% endif %}
+            </div>
+            
+            {% if doc_files.PAN %}
+                <img src="{{ doc_files.PAN.document_file.url }}" alt="Uploaded PAN Card" class="docimage" />
+            {% else %}
+                <img src="{% static 'images/pan.png' %}" alt="Default PAN Card Image" class="docimage" />
+            {% endif %}
+            
+            <h5 class="card-title">Upload PAN Card</h5>
+            <p class="card-text">Upload your PAN card for verification.</p>
+            <a href="{% url 'upload_document' 'PAN' %}" class="btn">Update PAN</a>
+        </div>
+    
+        <!-- Tax Paid Slip -->
+        <div class="card">
+            <div class="verification-status {% if doc_status.TAX %}bg-success{% else %}bg-danger{% endif %}">
+                {% if doc_status.TAX %}Verified{% else %}Not Verified{% endif %}
+            </div>
+            
+            {% if doc_files.TAX %}
+                <img src="{{ doc_files.TAX.document_file.url }}" alt="Uploaded Tax Paid Slip" class="docimage" />
+            {% else %}
+                <img src="{% static 'images/tax.png' %}" alt="Default Tax Paid Slip Image" class="docimage" />
+            {% endif %}
+            
+            <h5 class="card-title">Upload Tax Paid Slip</h5>
+            <p class="card-text">Upload your tax paid slip for verification.</p>
+            <a href="{% url 'upload_document' 'TAX' %}" class="btn">Update Slip</a>
+        </div>
+    
+        <!-- Salary Slip -->
+        <div class="card">
+            <div class="verification-status {% if doc_status.SALARY %}bg-success{% else %}bg-danger{% endif %}">
+                {% if doc_status.SALARY %}Verified{% else %}Not Verified{% endif %}
+            </div>
+            
+            {% if doc_files.SALARY %}
+                <img src="{{ doc_files.SALARY.document_file.url }}" alt="Uploaded Salary Slip" class="docimage" />
+            {% else %}
+                <img src="{% static 'images/salary.png' %}" alt="Default Salary Slip Image" class="docimage" />
+            {% endif %}
+            
+            <h5 class="card-title">Upload Salary Slip</h5>
+            <p class="card-text">Upload your salary slip for verification.</p>
+            <a href="{% url 'upload_document' 'SALARY' %}" class="btn">Update Salary</a>
+        </div>
+    
+        <!-- Other Document -->
+        <div class="card">
+            <div class="verification-status {% if doc_status.OTHER %}bg-success{% else %}bg-danger{% endif %}">
+                {% if doc_status.OTHER %}Verified{% else %}Not Verified{% endif %}
+            </div>
+            
+            {% if doc_files.OTHER %}
+                <img src="{{ doc_files.OTHER.document_file.url }}" alt="Uploaded Other Document" class="docimage" />
+            {% else %}
+                <img src="{% static 'images/docs.jpg' %}" alt="Default Other Document Image" class="docimage" />
+            {% endif %}
+            
+            <h5 class="card-title">Upload Other Document</h5>
+            <p class="card-text">Upload any other documents for verification.</p>
+            <a href="{% url 'upload_document' 'OTHER' %}" class="btn">Update Document</a>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

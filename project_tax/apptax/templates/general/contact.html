@@ -1,0 +1,134 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - Tax Management System{% endblock %}
+
+{% block content %}
+<style>
+    /* Contact Page-Specific Styles */
+    .contact-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f5f5f5;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+
+    .contact-form {
+        background-color: white;
+        padding: 30px;
+        max-width: 500px;
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .contact-form h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333333;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        color: #555555;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #b0b0b0;
+        border-radius: 4px;
+        font-size: 14px;
+        color: #333333;
+        background-color: #ffffff;
+    }
+
+    .form-control:focus {
+        border-color: #ffc916;
+        outline: none;
+        box-shadow: 0 0 5px rgba(247, 108, 108, 0.3);
+    }
+
+    .cta-button {
+        width: 100%;
+        padding: 10px;
+        background-color: #ffac11;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .cta-button:hover {
+        background-color: #fcc600;
+        cursor: pointer;
+    }
+
+    .success-message {
+        color: #4CAF50; /* Green color for success */
+        font-size: 14px;
+        margin: 10px 0;
+        text-align: center;
+    }
+
+    .errors {
+        color: #ff0000;
+        font-size: 12px;
+        margin-top: -8px;
+        margin-bottom: 8px;
+    }
+    h2 .logo
+    {
+        position: relative;
+        top: 8px;
+    }
+</style>
+
+<div class="contact-container">
+    <div class="contact-form">
+        <h2>Contact Us <img src="{% static 'images/smartax_logo1.jpg' %}" alt="Tax Management System Logo" class="logo"></h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Name:</label>
+                {{ form.name }}
+                <span class="errors">{{ form.name.errors }}</span>
+            </div>
+            <div class="form-group">
+                <label for="location">Location:</label>
+                {{ form.location }}
+                <span class="errors">{{ form.location.errors }}</span>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                {{ form.email }}
+                <span class="errors">{{ form.email.errors }}</span>
+            </div>
+            <div class="form-group">
+                <label for="message">Message:</label>
+                {{ form.message }}
+                <span class="errors">{{ form.message.errors }}</span>
+            </div>
+            <button type="submit" class="cta-button">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

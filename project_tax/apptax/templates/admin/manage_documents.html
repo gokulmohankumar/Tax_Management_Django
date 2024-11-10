@@ -1,0 +1,72 @@
+<!-- manage_documents.html -->
+{% extends 'admin/admin_base.html' %}
+
+{% block content %}
+<style>
+    /* styles.css */
+.document-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    width: 200px;
+    text-align: center;
+}
+
+.card img {
+    max-width: 100%;
+    height: auto;
+}
+
+.actions {
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+</style>
+<h1>Manage Documents</h1>
+
+<div class="document-cards">
+    {% for document in documents %}
+        <div class="card">
+            <h3>{{ document.document_type }}</h3>
+            <img src="{{ document.document_file.url }}" alt="{{ document.document_type }}">
+            <p>Uploaded at: {{ document.uploaded_at }}</p>
+
+            <div class="actions">
+                {% if not document.verified %}
+                    <form action="{% url 'approve_document' document.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Approve</button>
+                    </form>
+                {% else %}
+                    <p>Document Approved</p>
+                {% endif %}
+                
+                <form action="{% url 'disapprove_document' document.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Disapprove</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

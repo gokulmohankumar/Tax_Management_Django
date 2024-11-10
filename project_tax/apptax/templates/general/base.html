@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Tax Management System{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <style>
+      /* Reset styles for all elements */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Logo styles */
+      .logo {
+        position: relative;
+        bottom: 3px;
+        max-height: 30px;
+        margin-right: 10px;
+        border-radius: 10px;
+      }
+
+      /* Navigation styles */
+      .navbar {
+        display: flex; /* Use flexbox for alignment */
+        justify-content: space-between; /* Space between elements */
+        align-items: center; /* Center items vertically */
+        padding: 10px 15px; /* Add some padding */
+        background: rgba(0, 0, 0, 0.8); /* Background color */
+        font-size: 18px;
+      }
+
+      .navbar-content {
+        display: flex; /* Use flexbox for the content */
+        flex-grow: 1; /* Allow content to grow and fill space */
+      }
+
+      .navbar-links {
+        flex-grow: 1;
+      }
+
+      .nav-list {
+        list-style: none; /* Remove default list styles */
+        display: flex; /* Display links in a row */
+        margin: 0; /* Remove margin */
+        padding: 0; /* Remove padding */
+      }
+
+      .nav-item {
+        margin-right: 20px;
+      }
+      .navbar-brand {
+        margin-right: 40px;
+      }
+      .navbar-brand,
+      .nav-link {
+        color: white; /* Text color */
+        text-decoration: none; /* Remove underline */
+        font-size: 16px; /* Set text size */
+        transition: color 0.3s; /* Smooth transition for hover */
+      }
+
+      .nav-link i {
+        color: #f39c12; /* Gold color for icons */
+        margin-right: 5px; /* Space between icon and text */
+      }
+
+      .nav-link:hover {
+        color: #f1c40f; /* Change color on hover */
+      }
+
+      .navbar-icons {
+        display: flex;
+        color: #f39c12; /* Color for icons */
+      }
+
+      .navbar-icons .nav-item {
+        margin-left: 20px; /* Space between icons */
+      }
+
+      footer {
+        width: 100%;
+        padding: 20px 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: #bdc3c7;
+        text-align: center;
+      }
+
+      footer .list-inline {
+        padding: 0;
+        margin: 10px 0;
+      }
+
+      footer .list-inline-item {
+        display: inline;
+        margin: 0 15px;
+      }
+      footer .list-inline-item a {
+        color: white;
+        text-decoration: none;
+      }
+      footer .list-inline-item a:hover {
+        color: rgb(160, 111, 4);
+      }
+
+      footer .social-icons .icon {
+        font-size: 20px;
+        color: #f39c12;
+        margin: 0 10px;
+        transition: color 0.3s;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="navbar-content">
+        <img
+          src="{% static 'images/smartax_logo1.jpg' %}"
+          alt="Logo"
+          class="logo"
+        />
+        <a
+          class="navbar-brand"
+          href="#"
+          style="font-size: 20px; font-style: italic"
+          >Smart-Tax System</a
+        >
+        <div class="navbar-links">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'home' %}"
+                ><i class="fas fa-home"></i> Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'register' %}"
+                ><i class="fas fa-user-plus"></i> Register</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}"
+                ><i class="fas fa-sign-in-alt"></i> Login</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}"
+                ><i class="fas fa-info-circle"></i> About Us</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'contact' %}"
+                ><i class="fas fa-envelope"></i> Contact</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-icons">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a class="nav-link" href="#"><i class="fas fa-user icon"></i></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#"><i class="fas fa-cog icon"></i></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#"><i class="fas fa-bell icon"></i></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      {% block content %}
+      <p>This is the main content area.</p>
+      <!-- Example content -->
+      {% endblock %}
+    </div>
+
+    <footer class="text-center">
+      <div class="footer-content">
+        <p>&copy; 2024 Smart_TAX System</p>
+        <ul class="list-inline">
+          <li class="list-inline-item">
+            <a href="#" class="text-light">Privacy Policy</a>
+          </li>
+          <li class="list-inline-item">
+            <a href="#" class="text-light">Terms of Service</a>
+          </li>
+          <li class="list-inline-item">
+            <a href="{% url 'contact' %}" class="text-light">Contact Us</a>
+          </li>
+          <li class="list-inline-item">
+            <a href="{% url 'contact' %}" class="text-light">Help</a>
+          </li>
+        </ul>
+        <div class="social-icons">
+          <a href="#" class="icon"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="icon"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="icon"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="icon"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

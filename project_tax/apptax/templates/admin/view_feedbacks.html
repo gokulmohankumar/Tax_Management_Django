@@ -1,0 +1,80 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block content %}
+<style>
+    .feedback-list,contact-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.card {
+    width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 10px;
+}
+
+.card-footer {
+    background-color: #f8f9fa;
+    padding: 10px;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+</style>
+
+    <h2>Feedbacks</h2>
+    <div class="feedback-list">
+        {% for feedback in feedbacks %}
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ feedback.user.first_name }}'s Feedback</h5>
+                    <p><strong>Calculation Type:</strong> {{ feedback.calculation_type }}</p>
+                </div>
+                <div class="card-body">
+                    <p><strong>Feedback:</strong> {{ feedback.feedback_text }}</p>
+                    <p><strong>Rating:</strong> {{ feedback.rating }}/5</p>
+                    <p><strong>Submitted on:</strong> {{ feedback.created_at }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'reply_feedback' feedback.id %}" class="btn btn-primary">Reply</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <br><br><br>
+    <h2>contact messages</h2><br><br>
+    <div class="contact-list">
+        {% for contact in contacts %}
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ contact.name }}</h5>
+                    <p><strong>Location:</strong> {{ contact.location }}</p>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> {{ contact.email }}</p>
+                    <p><strong>Message:</strong> {{ contact.message }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+ 
