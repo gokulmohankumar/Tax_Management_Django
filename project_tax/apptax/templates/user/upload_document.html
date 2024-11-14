@@ -1,6 +1,5 @@
 {% extends 'user/user_base.html' %}
 {% load static %}
-{% load custom_filters %}
 {% block content %}
 <style>
     .container {
@@ -90,7 +89,7 @@
             <div class="preview-section" id="preview-section" style="{% if document and document.document_file %}display: block;{% else %}display: none;{% endif %}">
                 <h6>Preview:</h6>
                 {% if document and document.document_file %}
-                    {% if document.document_file.url|lower|endswith:".pdf" %}
+                    {% if document.document_file.url|lower %}
                         <p>Preview not available for PDF files. <a href="{{ document.document_file.url }}" target="_blank">View PDF</a></p>
                     {% else %}
                         <img id="preview-img" src="{{ document.document_file.url }}" alt="Uploaded {{ doc_type|title }}" class="img-fluid" />

@@ -2,13 +2,123 @@
 {% extends 'admin/admin_base.html' %}
 
 {% block content %}
-<h1>Edit User: {{ user.username }}</h1>
+<style>
+    /* Page Layout */
+    .form-container {
+        width: 60%;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save Changes</button>
-</form>
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    .form-control[disabled] {
+        background-color: #f1f1f1;
+        cursor: not-allowed;
+    }
+    button[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 18px;
+        color: #fff;
+        background-color: #ea9e08;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button[type="submit"]:hover {
+        background-color: #ebcf1c;
+    }
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #007bff;
+        text-decoration: none;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
 
-<a href="{% url 'manage_users' %}">Back to Manage Users</a>
+<div class="form-container">
+    <h1>Edit User Profile</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>{{ form.profile_image.label }}</label>
+            {% if form.instance.profile_image %}
+                <div class="current-image">
+                    <img src="{{ form.instance.profile_image.url }}" alt="Current Profile Image" width="150" style="border-radius: 8px;">
+                </div>
+            {% endif %}
+            {{ form.profile_image }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.first_name.label_tag }}
+            {{ form.first_name }}
+        </div>
+
+        <div class="form-group">
+            {{ form.last_name.label_tag }}
+            {{ form.last_name }}
+        </div>
+
+        <div class="form-group">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+        </div>
+
+        <div class="form-group">
+            {{ form.date_of_birth.label_tag }}
+            {{ form.date_of_birth }}
+        </div>
+
+        <div class="form-group">
+            {{ form.phone_number.label_tag }}
+            {{ form.phone_number }}
+        </div>
+
+        <div class="form-group">
+            {{ form.pan_number.label_tag }}
+            {{ form.pan_number }}
+        </div>
+
+        <div class="form-group">
+            {{ form.taxpayer_status.label_tag }}
+            {{ form.taxpayer_status }}
+        </div>
+
+     
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <a href="{% url 'manage_users' %}" class="back-link">Back to Manage Users</a>
+</div>
 {% endblock %}

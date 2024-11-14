@@ -141,8 +141,9 @@ class BasicTaxDetail(models.Model):
 
 
 class IncomeDetails(models.Model):
-    entry_id = models.OneToOneField(BasicTaxDetail, on_delete=models.CASCADE, related_name="income_details",unique=True)  # Link to BasicTaxDetail
+    entry_id = models.OneToOneField(BasicTaxDetail, on_delete=models.CASCADE, related_name="income_details", unique=True)  # Link to BasicTaxDetail
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    
     # Income fields
     basic_salary = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     hra = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
@@ -153,6 +154,7 @@ class IncomeDetails(models.Model):
     # Exemptions
     hra_exempted = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
     lta_exempted = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
+    exemptions = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)  # New field to store total exemptions
 
     # Other income sources
     income_from_interest = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
@@ -161,6 +163,7 @@ class IncomeDetails(models.Model):
     interest_on_home_loan_let_out = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
     income_from_digital_assets = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
     other_income = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
+    
     updated_at = models.DateTimeField(auto_now=True)
 
     def calculate_gross_income(self):
@@ -169,8 +172,15 @@ class IncomeDetails(models.Model):
             self.lta + self.other_allowance + self.income_from_interest +
             self.rental_income + self.income_from_digital_assets + self.other_income
         )
-        exemptions = self.hra_exempted + self.lta_exempted
-        return total_income - exemptions
+        # Using the exemptions field to exclude exempted amounts
+        return total_income - self.exemptions
+
+    def save(self, *args, **kwargs):
+        # Automatically calculate the total exemptions
+        self.exemptions = self.hra_exempted + self.lta_exempted
+        
+        # Now call the superclass save method to persist the changes
+        super(IncomeDetails, self).save(*args, **kwargs)
 
 
 class Deductions(models.Model):
@@ -191,7 +201,8 @@ class Deductions(models.Model):
 
     def calculate_total_deductions_new(self):
         return self.section_80D + self.section_80E + self.section_80TTA + self.standard_deduction_new
-
+    def exemptions(self):
+        return self.hra_exempted + self.lta_exempted
 import logging
 logger = logging.getLogger(__name__)
 

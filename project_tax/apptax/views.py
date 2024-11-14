@@ -172,11 +172,83 @@ def login_view(request):
 
 import cloudinary.uploader
 
-
-@login_required
+from django.db.models import Avg, Count, Sum
+from decimal import Decimal
+import json
 def admin_dashboard(request):
-    return render(request, 'admin/admin_dashboard.html')
+    total_users=CustomUser.objects.count()
 
+    total_documents = Document.objects.count()
+    
+    # Verified documents
+    verified_documents = Document.objects.filter(verified=True).count()
+    
+    # Pending documents (i.e., not verified)
+    pending_documents = total_documents - verified_documents
+
+    total_calculations=TaxCalculation.objects.count()
+    
+    income_sources = IncomeDetails.objects.aggregate(
+    basic_salary=Sum('basic_salary'),
+    special_allowance=Sum('special_allowance'),
+    hra=Sum('hra'),
+    rental_income=Sum('rental_income'),
+    interest_income=Sum('income_from_interest')
+    )
+    # Chart 1: Total Income Distribution by Age Group
+    age_groups = {
+        '18_30': 0, 
+        '31_45': 0, 
+        '46_60': 0, 
+        '60_plus': 0
+    }
+    
+    # Loop through each user in BasicTaxDetail to categorize them by age and income
+    for user in BasicTaxDetail.objects.all():
+        income = IncomeDetails.objects.filter(user=user.user_id).first().calculate_gross_income() if IncomeDetails.objects.filter(user=user.user_id).exists() else 0
+        
+        # Aggregate income by age group
+        if 18 <= user.age <= 30:
+            age_groups['18_30'] += income
+        elif 31 <= user.age <= 45:
+            age_groups['31_45'] += income
+        elif 46 <= user.age <= 60:
+            age_groups['46_60'] += income
+        else:
+            age_groups['60_plus'] += income
+
+    # Chart 2: Tax Regime Comparison for Total Deductions
+    old_regime_deductions = TaxCalculation.objects.filter(taxable_income_old_regime__gt=0).aggregate(total=Sum('total_deductions'))['total']
+    new_regime_deductions = TaxCalculation.objects.filter(taxable_income_new_regime__gt=0).aggregate(total=Sum('total_deductions'))['total']
+
+    # Chart 3: Top Exemptions Claimed by Users
+    deductions = Deductions.objects.aggregate(
+        section_80C=Sum('section_80C'),
+        section_80D=Sum('section_80D'),
+        section_80G=Sum('section_80G'),
+        section_80E=Sum('section_80E'),
+        section_80TTA=Sum('section_80TTA'),
+    )
+     
+    # Chart 4: Feedback Ratings Distribution
+    ratings = Feedback.objects.values('rating').annotate(count=Count('rating')).order_by('rating')
+    ratings_data = list(ratings)  # Convert QuerySet to list of dictionaries
+
+    # Pass data to the template
+    context = {
+        'age_groups': age_groups,
+        'old_regime_deductions': old_regime_deductions,
+        'new_regime_deductions': new_regime_deductions,
+        'deductions': deductions,
+        'ratings': json.dumps(ratings_data),  # Serialize ratings data for use in JavaScript
+        'total_users':total_users,
+        'total_documents':total_documents,
+        'verified_documents':verified_documents,
+        'pending_documents':pending_documents,
+        'total_calculations':total_calculations,
+        'income_sources': income_sources, 
+    }
+    return render(request, 'admin/admin_dashboard.html', context)
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -186,117 +258,78 @@ import base64
 import numpy as np
 from io import BytesIO
 # Save plot to base64
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 
-def save_plot_to_base64(fig):
-    """Helper function to save matplotlib plot to base64."""
-    buf = BytesIO()
-    fig.savefig(buf, format='png')
-    buf.seek(0)
-    return base64.b64encode(buf.read()).decode('utf-8')
 
-  # Import the filter
-
+@login_required
 def user_dashboard(request):
-    user = request.user
-
-    # 1. Income Breakdown (Bar Chart)
-    income_details = IncomeDetails.objects.filter(user=user).order_by('-id').first()
-    basic_details = BasicTaxDetail.objects.filter(user=user).order_by('-id').first()
-    if income_details:
+    # Fetching the income breakdown for the user
+    try:
+        income_details = IncomeDetails.objects.filter(user=request.user).first()
+        income_breakdown = income_details is not None
         income_data = {
-            'Basic': income_details.basic_salary or 0,
-            'HRA': income_details.hra or 0,
-            'Special': income_details.special_allowance or 0,
-            'LTA': income_details.lta or 0,
-            'Other': income_details.other_allowance or 0,
-            'Rental': income_details.rental_income or 0,
-            'Digital': income_details.income_from_digital_assets or 0,
+            'Basic': getattr(income_details, 'basic_salary', 0),
+            'HRA': getattr(income_details, 'hra', 0),
+            'Special': getattr(income_details, 'special_allowance', 0),
+            'LTA': getattr(income_details, 'lta', 0),
+            'Other': getattr(income_details, 'other_income', 0),
+            'Rental': getattr(income_details, 'rental_income', 0),
+            'Digital': getattr(income_details, 'income_from_digital_assets', 0)
         }
-        # Remove zero or NaN entries to prevent issues in pie chart rendering
-        income_data = {k: np.nan_to_num(v, nan=0) for k, v in income_data.items() if v > 0}
-    else:
+    except IncomeDetails.DoesNotExist:
+        income_breakdown = False
         income_data = {}
 
-    if income_data:
-        fig1, ax1 = plt.subplots()
-        ax1.bar(income_data.keys(), income_data.values(), color='gold')
-        ax1.set_xlabel('Income Sources')
-        ax1.set_ylabel('Amount')
-        ax1.set_title('Income Breakdown')
-        income_breakdown = save_plot_to_base64(fig1)
-    else:
-        income_breakdown = None
-
-    # 2. Old vs New Regime Tax Comparison (Bar Chart)
-    tax_calculation = TaxCalculation.objects.filter(user=user).order_by('-id').first()
-    if tax_calculation:
-        tax_data = {
-            'Old Regime': tax_calculation.tax_old_regime or 0,
-            'New Regime': tax_calculation.tax_new_regime or 0,
-        }
-        tax_data = {k: np.nan_to_num(v, nan=0) for k, v in tax_data.items()}
-
-        fig2, ax2 = plt.subplots()
-        ax2.bar(tax_data.keys(), tax_data.values(), color=['#1f77b4', '#ff7f0e'])
-        ax2.set_ylabel("Tax Amount")
-        tax_comparison = save_plot_to_base64(fig2)
-    else:
-        tax_comparison = None
-
-    # 3. Deductions Breakdown (Pie Chart)
-    deductions = Deductions.objects.filter(user=user).order_by('-id').first()
-    if deductions:
+    # Fetching deductions breakdown
+    try:
+        deductions = Deductions.objects.filter(user=request.user).first()
+        deductions_breakdown = deductions is not None
         deductions_data = {
-            'Section 80C': deductions.section_80C or 0,
-            'Section 80D': deductions.section_80D or 0,
-            'Section 80G': deductions.section_80G or 0,
-            'Section 80E': deductions.section_80E or 0,
-            'Section 80TTA': deductions.section_80TTA or 0,
+            'Section_80C': getattr(deductions, 'section_80C', 0),
+            'Section_80D': getattr(deductions, 'section_80D', 0),
+            'Section_80G': getattr(deductions, 'section_80G', 0),
+            'Section_80E': getattr(deductions, 'section_80E', 0),
+            'Section_80TTA': getattr(deductions, 'section_80TTA', 0)
         }
-        deductions_data = {k: np.nan_to_num(v, nan=0) for k, v in deductions_data.items() if v > 0}
+    except Deductions.DoesNotExist:
+        deductions_breakdown = False
+        deductions_data = {}
 
-        fig3, ax3 = plt.subplots()
-        ax3.pie(deductions_data.values(), labels=deductions_data.keys(), autopct='%1.1f%%', startangle=90)
-        ax3.axis('equal')
-        deductions_breakdown = save_plot_to_base64(fig3)
-    else:
-        deductions_breakdown = None
+    # Fetching tax comparison for the user
+    try:
+        tax_details = TaxCalculation.objects.filter(user=request.user).order_by('entry_id').first()
+        tax_comparison = tax_details is not None
+        tax_comparison_data = {
+            'Old_Regime': getattr(tax_details, 'tax_old_regime', 0),
+            'New_Regime': getattr(tax_details, 'tax_new_regime', 0)
+        }
+    except TaxCalculation.DoesNotExist:
+        tax_comparison = False
+        tax_comparison_data = {}
 
-    # 4. Income Comparison vs Taxable Income (Bar Chart)
-    income_comparison = None  # You can define logic for this chart if needed
-
-    # 5. Effective Tax Rate Over Years (Line Chart or other)
-    tax_rate_chart = None  # Define logic for this chart if needed
-
-    # Fetch the latest tax details for the user
-    tax_details = TaxCalculation.objects.filter(user=user).order_by('-id').first()
-
-    # 6. Document Verification Status
-    documents = Document.objects.filter(user=user)
+    # Fetching document verification status
     document_status = {}
-    for doc in ['PAN', 'TAX', 'SALARY', 'OTHER']:
-        doc_obj = documents.filter(document_type=doc).first()
-        if doc_obj:
-            document_status[doc] = 'Verified' if doc_obj.verified else 'Not Verified'
-        else:
-            document_status[doc] = 'Not Updated'
+    documents = Document.objects.filter(user=request.user)
+    for doc in documents:
+        document_status[doc.document_type] = doc.verified
 
-    # Render the dashboard template with all the data
+    # Fetching tax details for the current financial year
+    financial_year = "FY 2024-2025"  # This should be dynamic based on the user's selection
+
     context = {
         'income_breakdown': income_breakdown,
-        'tax_comparison': tax_comparison,
+        'income_data': income_data,
         'deductions_breakdown': deductions_breakdown,
-        'income_comparison': income_comparison,
-        'tax_rate_chart': tax_rate_chart,
+        'deductions_data': deductions_data,
+        'tax_comparison': tax_comparison,
+        'tax_comparison_data': tax_comparison_data,
         'tax_details': tax_details,
-        'document_status': document_status,
+        'financial_year': financial_year,
+        'document_status': document_status
     }
-    if basic_details and basic_details.financial_year is not None:
-     context['financial_year'] = basic_details.financial_year
 
     return render(request, 'user/user_dashboard.html', context)
-
 
 @login_required
 def user_profile(request):

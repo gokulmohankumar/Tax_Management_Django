@@ -1,8 +1,161 @@
 {% extends 'admin/admin_base.html' %}
 
 {% block content %}
+<style>
+    /* General Styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f7fc;
+        margin: 0;
+        padding: 0;
+    }
+
+    h2 {
+        font-size: 28px;
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+    }
+
+    /* Table Styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        background-color: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    table th, table td {
+        padding: 12px 15px;
+        text-align: left;
+        font-size: 16px;
+        color: #555;
+    }
+
+    table th {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Radio Button Styling */
+    input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        accent-color: #007bff;
+    }
+
+    /* Modal Styling */
+    .personal-note-box {
+        display: none; /* Initially hidden */
+        position: fixed; /* Fixed position */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+        z-index: 1000; /* Ensures it's on top of other elements */
+        align-items: center;
+        justify-content: center;
+        display: none; /* Hidden initially */
+    }
+
+    .personal-note-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .personal-note-content h3 {
+        margin-bottom: 20px;
+    }
+
+    .personal-note-content textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        resize: vertical;
+        margin-bottom: 20px;
+    }
+
+    .personal-note-content button {
+        padding: 12px 20px;
+        background-color: #f8b711;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .personal-note-content button:hover {
+        background-color: #e3b603;
+    }
+
+    .close-btn {
+        position:relative;
+        font-size: 18px;
+        left:250px;
+        cursor: pointer;
+        color: #ed3939;
+    }
+
+    /* Responsive Design for Small Screens */
+    @media (max-width: 768px) {
+        table th, table td {
+            font-size: 14px;
+        }
+
+        table th {
+            font-size: 16px;
+        }
+
+        form {
+            padding: 15px;
+        }
+
+        button {
+            padding: 10px 15px;
+        }
+
+        .personal-note-content textarea {
+            width: 100%;
+        }
+    }
+</style>
 
 <h2>All Users - Tax Calculations</h2>
+
+<!-- Modal Overlay for Personal Note (Initially Hidden) -->
+<div id="personal-note-box" class="personal-note-box">
+    <div class="personal-note-content">
+        <span class="close-btn" onclick="closePersonalNote()">X</span>
+        <h3>Send Personal Note</h3>
+        <form method="post">
+            {% csrf_token %}
+            <textarea name="note_content" rows="4" placeholder="Enter your note here..." required></textarea>
+            <button type="submit">Send Note</button>
+        </form>
+    </div>
+</div>
 
 <form method="post">
     {% csrf_token %}
@@ -23,7 +176,7 @@
             {% for entry in tax_calculations %}
                 <tr>
                     <td>
-                        <input type="radio" name="selected_entry" value="{{ entry.id }}" required>
+                        <input type="radio" name="selected_entry" value="{{ entry.id }}" onclick="showPersonalNote()">
                     </td>
                     <td>{{ entry.user.first_name }} {{ entry.user.last_name }}</td>
                     <td>{{ entry.id }}</td>
@@ -35,10 +188,18 @@
             {% endfor %}
         </tbody>
     </table>
-
-    <h3>Send Personal Note</h3>
-    <textarea name="note_content" rows="4" placeholder="Enter your note here..." required></textarea>
-
-    <button type="submit">Send Note</button>
 </form>
+
+<script>
+    function showPersonalNote() {
+        // Show the modal (personal note box) when a user is selected
+        document.getElementById('personal-note-box').style.display = 'flex';
+    }
+
+    function closePersonalNote() {
+        // Close the modal when the close button is clicked
+        document.getElementById('personal-note-box').style.display = 'none';
+    }
+</script>
+
 {% endblock %}

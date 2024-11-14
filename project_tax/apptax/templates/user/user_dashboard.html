@@ -1,5 +1,7 @@
 {% extends "user/user_base.html" %}
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
     .dashboard-container {
         padding: 20px;
@@ -17,36 +19,31 @@
         color: #333;
     }
 
-    /* Full-width bar chart styling with fixed height */
     .full-width-chart {
-        width: 80%;
-        height: 400px; 
+        width: 90%;
+        align-items: center;
         display: block;
-        margin: 0 10%;
     }
 
-    /* Charts row for side-by-side comparisons */
     .charts-row {
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
+        gap: 20px; /* Add gap between the charts */
     }
 
     .chart {
         flex: 1;
-        min-width: 200px;
-        max-width: 60%;
-        margin-left: 20px;
+        min-width: 280px; /* Ensure minimum width for charts */
+        height: 350px; /* Ensure equal height for both pie and bar charts */
     }
 
-    /* Table styling with improved colors */
     table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
         color: #333;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        margin-left: 20px;
     }
 
     th, td {
@@ -56,12 +53,12 @@
     }
 
     th {
-        background-color: #4CAF50; /* Header background color */
+        background-color: #4CAF50;
         color: white;
     }
 
     tr:nth-child(even) {
-        background-color: #f9f9f9; /* Alternating row color */
+        background-color: #f9f9f9;
     }
 
     tr:nth-child(odd) {
@@ -73,24 +70,66 @@
     }
 
     tr:hover {
-        background-color: #f1f1f1; /* Row hover effect */
+        background-color: #f1f1f1;
     }
-    p
-    {
+
+    p {
         text-align: center;
         color: rgb(255, 187, 0);
         font-weight: bolder;
         font-style: oblique;
         font-size: larger;
     }
-    h3
-    {
+
+    h3 {
         margin-left: 20px;
+    }
+
+    /* Effective tax rate styling */
+    #effectiveTaxOldRegime, #effectiveTaxNewRegime {
+        font-weight: bold;
+        color: #FF5733; /* Red-orange color for emphasis */
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    /* Customize pie chart */
+    .chart canvas {
+        max-width: 100%;
+        height: 350px !important; /* Ensure pie chart has equal height */
     }
 </style>
 
+
 <div class="dashboard-container">
     <p>Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
+
+    <!-- Income Breakdown (Full-Width Bar Chart) -->
+    <div class="section">
+        <h3>Income Breakdown</h3>
+        {% if income_breakdown %}
+            <canvas id="incomeChart" class="full-width-chart"></canvas>
+        {% else %}
+            <p>No income details available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Deductions and Tax Comparison Charts (Side-by-Side) -->
+    <div class="section charts-row">
+        {% if deductions_breakdown %}
+            <div class="chart">
+                <h3>Deductions Breakdown</h3>
+                <canvas id="deductionsChart"></canvas>
+            </div>
+        {% endif %}
+        {% if tax_comparison %}
+            <div class="chart">
+                <h3>Old vs New Regime Tax Comparison</h3>
+                <canvas id="taxComparisonChart"></canvas>
+            </div>
+        {% endif %}
+    </div>
+
     <div class="section">
         <h3>Tax Details</h3>
         {% if tax_details %}
@@ -126,8 +165,9 @@
             <p>No tax details available.</p>
         {% endif %}
     </div>
-       <!-- 4. Document Verification Status -->
-       <div class="section">
+
+    <!-- Document Verification Status -->
+    <div class="section">
         <h3>Document Verification Status</h3>
         {% if document_status %}
             <table>
@@ -151,66 +191,117 @@
         {% endif %}
     </div>
 </div>
-    <!-- 1. Income Breakdown (Full-Width Bar Chart) -->
-    <div class="section">
 
-        <h3>Income Breakdown</h3>
-        {% if income_breakdown %}
-            <img src="data:image/png;base64,{{ income_breakdown }}" alt="Income Breakdown" class="full-width-chart">
-        {% else %}
-            <p>No income details available.</p>
-        {% endif %}
-    </div>
-    
-    <!-- 2. Deductions and Tax Comparison Charts (Side-by-Side) -->
-    <div class="section charts-row">
-        {% if deductions_breakdown %}
-            <div class="chart">
-                <h3>Deductions Breakdown</h3>
-                <img src="data:image/png;base64,{{ deductions_breakdown }}" alt="Deductions Breakdown">
-            </div>
-        {% endif %}
-        {% if tax_comparison %}
-            <div class="chart">
-                <h3>Old vs New Regime Tax Comparison</h3>
-                <img src="data:image/png;base64,{{ tax_comparison }}" alt="Tax Comparison">
-            </div>
-        {% endif %}
-    </div>
-    <script>
-        // Function to calculate effective tax rate
-        function calculateEffectiveTaxRate(tax, income) {
-            if (income > 0) {
-                return ((tax / income) * 100).toFixed(2) + "%";
+<script>
+    function calculateEffectiveTaxRate(taxableIncome, totalTax) {
+        // Avoid division by zero and ensure valid values
+        if (taxableIncome > 0 && totalTax > 0) {
+            return ((totalTax / taxableIncome) * 100).toFixed(2) + '%';
+        }
+        return '0%';  // Default to 0% if no tax or income
+    }
+
+    {% if tax_details %}
+        // Get taxable incomes and tax details
+        var taxableIncomeOldRegime = {{ tax_details.taxable_income_old_regime|default:0 }};
+        var taxableIncomeNewRegime = {{ tax_details.taxable_income_new_regime|default:0 }};
+        var taxOldRegime = {{ tax_details.tax_old_regime|default:0 }};
+        var taxNewRegime = {{ tax_details.tax_new_regime|default:0 }};
+
+        // Calculate effective tax rates
+        var effectiveTaxRateOld = calculateEffectiveTaxRate(taxableIncomeOldRegime, taxOldRegime);
+        var effectiveTaxRateNew = calculateEffectiveTaxRate(taxableIncomeNewRegime, taxNewRegime);
+
+        // Update the DOM with calculated values
+        document.getElementById('effectiveTaxOldRegime').textContent = effectiveTaxRateOld;
+        document.getElementById('effectiveTaxNewRegime').textContent = effectiveTaxRateNew;
+    {% endif %}
+    {% if income_breakdown %}
+    var incomeData = {
+        labels: ['Basic', 'HRA', 'Special', 'LTA', 'Other', 'Rental', 'Digital'],
+        datasets: [{
+            label: 'Income Breakdown',
+            data: [
+                {{ income_data.Basic|default:0 }},
+                {{ income_data.HRA|default:0 }},
+                {{ income_data.Special|default:0 }},
+                {{ income_data.LTA|default:0 }},
+                {{ income_data.Other|default:0 }},
+                {{ income_data.Rental|default:0 }},
+                {{ income_data.Digital|default:0 }}
+            ],
+            backgroundColor: 'rgba(255, 223, 0, 0.7)',
+            borderColor: 'rgba(255, 223, 0, 1)',
+            borderWidth: 1
+        }]
+    };
+    var ctxIncome = document.getElementById('incomeChart').getContext('2d');
+    new Chart(ctxIncome, {
+        type: 'bar',
+        data: incomeData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
             }
-            return "0%";
         }
-    
-        // Function to display the effective tax rates
-        function displayEffectiveTaxRates() {
-            // Parse values from Django template variables
-            const taxOldRegime = parseFloat("{{ tax_details.tax_old_regime|default:0 }}");
-            const taxableIncomeOldRegime = parseFloat("{{ tax_details.taxable_income_old_regime|default:0 }}");
-            
-            const taxNewRegime = parseFloat("{{ tax_details.tax_new_regime|default:0 }}");
-            const taxableIncomeNewRegime = parseFloat("{{ tax_details.taxable_income_new_regime|default:0 }}");
-    
-            console.log("Tax Old Regime:", taxOldRegime);           // Check if values are correctly passed
-            console.log("Taxable Income Old Regime:", taxableIncomeOldRegime);
-            console.log("Tax New Regime:", taxNewRegime);
-            console.log("Taxable Income New Regime:", taxableIncomeNewRegime);
-    
-            // Calculate and display for old regime
-            document.getElementById("effectiveTaxOldRegime").innerText = calculateEffectiveTaxRate(taxOldRegime, taxableIncomeOldRegime);
-            
-            // Calculate and display for new regime
-            document.getElementById("effectiveTaxNewRegime").innerText = calculateEffectiveTaxRate(taxNewRegime, taxableIncomeNewRegime);
-        }
-    
-        // Run the function after the page loads
-        window.onload = displayEffectiveTaxRates;
-    </script>
-    
+    });
+    {% endif %}
 
- 
+    {% if deductions_breakdown %}
+    var deductionsData = {
+        labels: ['Section 80C', 'Section 80D', 'Section 80G', 'Section 80E', 'Section 80TTA'],
+        datasets: [{
+            label: 'Deductions Breakdown',
+            data: [
+                {{ deductions_data.Section_80C|default:0 }},
+                {{ deductions_data.Section_80D|default:0 }},
+                {{ deductions_data.Section_80G|default:0 }},
+                {{ deductions_data.Section_80E|default:0 }},
+                {{ deductions_data.Section_80TTA|default:0 }}
+            ],
+            backgroundColor: ['#FF0000', '#FF9900', '#FFCC00', '#33CC33', '#0099FF'],
+        }]
+    };
+    var ctxDeductions = document.getElementById('deductionsChart').getContext('2d');
+    new Chart(ctxDeductions, {
+        type: 'pie',
+        data: deductionsData,
+        options: {
+            responsive: true
+        }
+    });
+    {% endif %}
+
+    {% if tax_comparison %}
+    var taxComparisonData = {
+        labels: ['Old Regime', 'New Regime'],
+        datasets: [{
+            label: 'Tax Comparison',
+            data: [{{ tax_details.tax_old_regime|default:0 }}, {{ tax_details.tax_new_regime|default:0 }}],
+            backgroundColor: ['#1f77b4', '#ff7f0e'],
+            borderColor: ['#1f77b4', '#ff7f0e'],
+            borderWidth: 1
+        }]
+    };
+    var ctxTaxComparison = document.getElementById('taxComparisonChart').getContext('2d');
+    new Chart(ctxTaxComparison, {
+        type: 'bar',
+        data: taxComparisonData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+
+
+
 {% endblock %}
